@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using MySql.Data.MySqlClient;
 
 namespace library_project
@@ -6,25 +7,65 @@ namespace library_project
     {
         public void addBook()
         {
+            Console.Clear();
+            string title = getStringInput("title");
+
+            string author = getStringInput("author");
+
+            int publication_year = getIntegerInput("publication year");
+
+            string genre = getStringInput("genre");
+
+            DatabaseHandler database = new DatabaseHandler();
+
+            using (var connection = database.MakeConnection())
+            {
+                string query = @"INSERT INTO books (title, author, publication_year, genre) VALUES
+                                    (@title, @author, @publication_year, @genre)";
+                
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("@title", title);
+                command.Parameters.AddWithValue("@author", author);
+                command.Parameters.AddWithValue("@publication_year", publication_year);
+                command.Parameters.AddWithValue("@genre", genre);
+
+                int result = command.ExecuteNonQuery();
+
+                if (result > 0)
+                {
+                    Console.WriteLine("Book added!");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to add book");
+                }
+                connection.Close();      
+            }
             
         }
 
         public void updateBook()
         {
+            Console.Clear();
             
         }
 
         public void deleteBook()
         {
+            Console.Clear();
             
         }
 
         public void searchBooks()
         {
+            Console.Clear();
             
         }
         public void getBooks()
         {
+            Console.Clear();
+
             DatabaseHandler database = new DatabaseHandler();
 
             using (var connection = database.MakeConnection())
@@ -36,8 +77,7 @@ namespace library_project
                     MySqlCommand command = new MySqlCommand(query, connection);
 
                     var queryResult = command.ExecuteReader();
-
-                    
+     
                     List<Book> bookList = new List<Book>();
                     while (queryResult.Read())
                     { 
@@ -62,6 +102,61 @@ namespace library_project
                     Console.WriteLine($"Error connecting to database: {ex}");
                 }
             }
+        }
+
+        public string getStringInput(string data)
+        {
+            
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine($"Enter {data}: ");
+                    string input = Console.ReadLine();
+            
+                    if (string.IsNullOrEmpty(input))
+                    {
+                        Console.Clear();
+                        Console.WriteLine($"Invalid input!");
+                        continue;      
+                    }
+
+                    return input;
+                }
+                catch (Exception e)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"Error! {e}");
+                    continue;
+                }        
+            }     
+        }
+
+        public int getIntegerInput(string data)
+        {
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine($"Enter {data}: ");
+                    int input = Convert.ToInt32(Console.ReadLine());
+
+                    if (int.IsNegative(input))
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Negative numbers are invalid!");
+                        continue;
+                    }
+
+                    return input;
+                }
+                catch (Exception e)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"Error! {e}");
+                    continue;
+                }
+            }      
         } 
     }       
 }

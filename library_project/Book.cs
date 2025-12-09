@@ -1,6 +1,6 @@
 namespace library_project
 {
-    class Book
+    public class Book
     {
         public int bookID { get; set; }
         public string title { get; set; }
@@ -8,6 +8,7 @@ namespace library_project
         public int publicationYear { get; set; }
         public string genre { get; set; }
 
+        //Constructor used when listing and searching books. Includes book ID.
         public Book(int bookID, string title, string author, int publicationYear, string genre)
         {
             this.bookID = bookID;
@@ -21,6 +22,16 @@ namespace library_project
             this.genre = genre;
         }
 
-        public Book() {}
+        //Constructor used for adding books. Excludes book ID since it auto increments in the database.
+        public Book(string title, string author, int publicationYear, string genre)
+        {
+            this.title = title;
+
+            this.author = author;
+
+            this.publicationYear = publicationYear;
+
+            this.genre = genre;
+        }
     }
 }
