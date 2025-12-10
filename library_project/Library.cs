@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 using Google.Protobuf.WellKnownTypes;
 using MySql.Data.MySqlClient;
 
@@ -149,10 +150,23 @@ namespace library_project
 
         public void searchBooks()
         {
+            List<Book> bookList = getBooks();
             Console.Clear();
-            
+
+            string titleInput = getStringInput("book title");
+
+            Console.WriteLine("Search results:");
+
+            foreach (Book entry in bookList)
+            {
+                if (entry.title.Contains(titleInput, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine($"ID = {entry.bookID}, Title = {entry.title}, Author = {entry.author}, Publication Year = {entry.publicationYear}, Genre = {entry.genre}");           
+                }
+            }
         }
-        public void getBooks()
+
+        public List<Book> getBooks()
         {
             Console.Clear();
 
@@ -182,14 +196,17 @@ namespace library_project
 
                     connection.Close();
 
-                    foreach (Book item in bookList)
+                    foreach (Book entry in bookList)
                     {
-                        Console.WriteLine($"ID = {item.bookID}, Title = {item.title}, Author = {item.author}, Publication Year = {item.publicationYear}, Genre = {item.genre}");
+                        Console.WriteLine($"ID = {entry.bookID}, Title = {entry.title}, Author = {entry.author}, Publication Year = {entry.publicationYear}, Genre = {entry.genre}");
                     }
+
+                    return bookList;
                 }
                 catch (MySqlException ex)
                 {
                     Console.WriteLine($"Error connecting to database: {ex}");
+                    return null;
                 }
             }
         }
