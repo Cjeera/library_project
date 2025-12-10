@@ -54,6 +54,37 @@ namespace library_project
         public void deleteBook()
         {
             Console.Clear();
+
+            getBooks();
+
+            int book_id = getIntegerInput("book ID");
+
+            DatabaseHandler database = new DatabaseHandler();
+
+            using (var connection = database.MakeConnection())
+            {
+                string query = @"DELETE FROM books
+                                    WHERE book_id = @book_id";
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("@book_id", book_id);
+
+                int result = command.ExecuteNonQuery();
+
+                if (result > 0)
+                {
+                    Console.WriteLine("Book deleted!");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to delete book!");
+                }
+
+                connection.Close();  
+            }
+
+
             
         }
 
@@ -116,7 +147,6 @@ namespace library_project
             
                     if (string.IsNullOrEmpty(input))
                     {
-                        Console.Clear();
                         Console.WriteLine($"Invalid input!");
                         continue;      
                     }
@@ -125,7 +155,6 @@ namespace library_project
                 }
                 catch (Exception e)
                 {
-                    Console.Clear();
                     Console.WriteLine($"Error! {e}");
                     continue;
                 }        
@@ -143,7 +172,6 @@ namespace library_project
 
                     if (int.IsNegative(input))
                     {
-                        Console.Clear();
                         Console.WriteLine("Negative numbers are invalid!");
                         continue;
                     }
@@ -152,7 +180,6 @@ namespace library_project
                 }
                 catch (Exception e)
                 {
-                    Console.Clear();
                     Console.WriteLine($"Error! {e}");
                     continue;
                 }
