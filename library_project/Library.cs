@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Google.Protobuf.WellKnownTypes;
 using MySql.Data.MySqlClient;
 
 namespace library_project
@@ -48,7 +49,68 @@ namespace library_project
         public void updateBook()
         {
             Console.Clear();
+
+            getBooks();
             
+            int book_id = getIntegerInput("the ID of the book you want to update");
+
+            int column = getIntegerInput("which column you wish to edit (1 - Title, 2 - Author, 3 - Publication Year, 4 - Genre)");
+
+            string columnName = null;
+            switch (column)
+            {
+                case 1:
+                    columnName = "title";
+                    break;
+                case 2:
+                    columnName = "author";
+                    break;
+                case 3:
+                    columnName = "publication_year";
+                    break;
+                case 4:
+                    columnName = "genre";
+                    break;
+                default:
+                    Console.WriteLine("Invalid column selection!");
+                    return;         
+            }
+      
+            object value = null;
+            if (column == 3)
+            {
+                value = getIntegerInput("new data");    
+            }
+            else
+            {
+                value = getStringInput("new data");
+            }
+
+            DatabaseHandler database = new DatabaseHandler();
+
+            using (var connection = database.MakeConnection())
+            {
+                string query = $@"UPDATE books
+                                    SET {columnName} = @value
+                                    WHERE book_id = @book_id";
+                
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("@book_id", book_id);
+                command.Parameters.AddWithValue("@value", value);
+
+                int result = command.ExecuteNonQuery();
+
+                if (result > 0)
+                {
+                    Console.WriteLine("Updated book details!");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to update details!");
+                }       
+            }
         }
 
         public void deleteBook()
@@ -57,7 +119,7 @@ namespace library_project
 
             getBooks();
 
-            int book_id = getIntegerInput("book ID");
+            int book_id = getIntegerInput("the ID of the book you want to delete");
 
             DatabaseHandler database = new DatabaseHandler();
 
@@ -82,10 +144,7 @@ namespace library_project
                 }
 
                 connection.Close();  
-            }
-
-
-            
+            }     
         }
 
         public void searchBooks()
@@ -136,15 +195,14 @@ namespace library_project
         }
 
         public string getStringInput(string data)
-        {
-            
+        {   
             while (true)
             {
                 try
                 {
                     Console.WriteLine($"Enter {data}: ");
                     string input = Console.ReadLine();
-            
+
                     if (string.IsNullOrEmpty(input))
                     {
                         Console.WriteLine($"Invalid input!");

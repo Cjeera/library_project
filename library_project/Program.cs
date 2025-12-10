@@ -9,8 +9,8 @@ namespace library_project
             Library library = new Library();
             while (true)
             {
-                Console.WriteLine("Library Menu");
-                Console.WriteLine("1. Add a Book\n2. Update Book Details\n3. Delete a Book\n4. View all books\n5. Search for a book by title\n6. Exit");
+                Console.WriteLine("Library Program");
+                Console.WriteLine("1. Add a Book\n2. Update Book Details\n3. Delete a Book\n4. View all books\n5. Search for a book by title\n6. Clear terminal\n7. Exit program");
 
                 switch(Console.ReadLine())
                 {
@@ -75,6 +75,10 @@ namespace library_project
                         }
 
                     case "6":
+                        Console.Clear();
+                        continue;
+
+                    case "7":
                         Console.WriteLine("Exiting program!");
                         break;
 
