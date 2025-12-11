@@ -1,93 +1,27 @@
-﻿using System.Linq.Expressions;
+﻿using library_project;
 
-namespace library_project
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
+        Library library = new Library();
+
+        while (true)
         {
-            Library library = new Library();
-            while (true)
+            Console.WriteLine("\nLibrary Program");
+            Console.WriteLine("1. Add a Book\n2. Update Book\n3. Delete Book\n4. View All Books\n5. Search Books\n6. Clear\n7. Exit");
+
+            switch (Console.ReadLine())
             {
-                Console.WriteLine("Library Program");
-                Console.WriteLine("1. Add a Book\n2. Update Book Details\n3. Delete a Book\n4. View all books\n5. Search for a book by title\n6. Clear terminal\n7. Exit program");
-
-                switch(Console.ReadLine())
-                {
-                    case "1":
-                        try
-                        {
-                            library.addBook();
-                            continue;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error: {ex}");
-                            continue;
-                        }
-                    
-                    case "2":
-                        try
-                        {
-                            library.updateBook();
-                            continue;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error: {ex}");
-                            continue;
-                        }
-                        
-                    case "3":
-                        try
-                        {
-                            library.deleteBook();
-                            continue;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error: {ex}");
-                            continue;
-                        }
-    
-                    case "4":
-                        try
-                        {
-                            library.getBooks();
-                            continue;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error: {ex}");
-                            continue;
-                        }
-
-                    case "5":
-                        try
-                        {
-                            library.searchBooks();
-                            continue;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error: {ex}");
-                            continue;
-                        }
-
-                    case "6":
-                        Console.Clear();
-                        continue;
-
-                    case "7":
-                        Console.WriteLine("Exiting program!");
-                        break;
-
-                    default:
-                        Console.WriteLine("Input error!");
-                        continue;
-                }
-                break;   
-            }        
+                case "1": library.AddBook(); break;
+                case "2": library.UpdateBook(); break;
+                case "3": library.DeleteBook(); break;
+                case "4": library.GetAllBooks(); break;
+                case "5": library.SearchBooks(); break;
+                case "6": Console.Clear(); break;
+                case "7": return;
+                default: Console.WriteLine("Invalid option."); break;
+            }
         }
     }
 }

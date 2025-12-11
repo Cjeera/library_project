@@ -1,264 +1,125 @@
-using System.Linq.Expressions;
-using System.Reflection;
-using Google.Protobuf.WellKnownTypes;
 using MySql.Data.MySqlClient;
 
 namespace library_project
 {
     class Library
     {
-        public void addBook()
+        private DatabaseHandler db = new DatabaseHandler();
+
+        public void AddBook()
         {
             Console.Clear();
-            string title = getStringInput("title");
+            string title = GetStringInput("title");
+            string author = GetStringInput("author");
+            int year = GetIntInput("publication year");
+            string genre = GetStringInput("genre");
 
-            string author = getStringInput("author");
+            Book book = new Book(title, author, year, genre);
 
-            int publication_year = getIntegerInput("publication year");
-
-            string genre = getStringInput("genre");
-
-            DatabaseHandler database = new DatabaseHandler();
-
-            using (var connection = database.MakeConnection())
+            if (db.InsertBook(book))
             {
-                string query = @"INSERT INTO books (title, author, publication_year, genre) VALUES
-                                    (@title, @author, @publication_year, @genre)";
-                
-                MySqlCommand command = new MySqlCommand(query, connection);
-
-                command.Parameters.AddWithValue("@title", title);
-                command.Parameters.AddWithValue("@author", author);
-                command.Parameters.AddWithValue("@publication_year", publication_year);
-                command.Parameters.AddWithValue("@genre", genre);
-
-                int result = command.ExecuteNonQuery();
-
-                if (result > 0)
-                {
-                    Console.WriteLine("Book added!");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to add book");
-                }
-                connection.Close();      
+                Console.WriteLine("Book added successfully!");   
             }
-            
-        }
 
-        public void updateBook()
-        {
-            Console.Clear();
-
-            getBooks();
-            
-            int book_id = getIntegerInput("the ID of the book you want to update");
-
-            int column = getIntegerInput("which column you wish to edit (1 - Title, 2 - Author, 3 - Publication Year, 4 - Genre)");
-
-            string columnName = null;
-            switch (column)
-            {
-                case 1:
-                    columnName = "title";
-                    break;
-                case 2:
-                    columnName = "author";
-                    break;
-                case 3:
-                    columnName = "publication_year";
-                    break;
-                case 4:
-                    columnName = "genre";
-                    break;
-                default:
-                    Console.WriteLine("Invalid column selection!");
-                    return;         
-            }
-      
-            object value = null;
-            if (column == 3)
-            {
-                value = getIntegerInput("new data");    
-            }
             else
             {
-                value = getStringInput("new data");
+                Console.WriteLine("Failed to add book.");           
             }
+        }
+        
+        public void UpdateBook()
+        {
+            Console.Clear();
+            GetAllBooks();
 
-            DatabaseHandler database = new DatabaseHandler();
+            int id = GetIntInput("ID of the book to update");
 
-            using (var connection = database.MakeConnection())
+            string title = GetStringInput("new title");
+            string author = GetStringInput("new author");
+            int year = GetIntInput("new publication year");
+            string genre = GetStringInput("new genre");
+
+            Book updated = new Book(title, author, year, genre);
+
+            if (db.UpdateBook(id, updated))
             {
-                string query = $@"UPDATE books
-                                    SET {columnName} = @value
-                                    WHERE book_id = @book_id";
+                Console.WriteLine("Book updated!");
                 
-
-                MySqlCommand command = new MySqlCommand(query, connection);
-
-                command.Parameters.AddWithValue("@book_id", book_id);
-                command.Parameters.AddWithValue("@value", value);
-
-                int result = command.ExecuteNonQuery();
-
-                if (result > 0)
-                {
-                    Console.WriteLine("Updated book details!");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to update details!");
-                }       
-            }
-        }
-
-        public void deleteBook()
-        {
-            Console.Clear();
-
-            getBooks();
-
-            int book_id = getIntegerInput("the ID of the book you want to delete");
-
-            DatabaseHandler database = new DatabaseHandler();
-
-            using (var connection = database.MakeConnection())
+            }           
+            else
             {
-                string query = @"DELETE FROM books
-                                    WHERE book_id = @book_id";
-
-                MySqlCommand command = new MySqlCommand(query, connection);
-
-                command.Parameters.AddWithValue("@book_id", book_id);
-
-                int result = command.ExecuteNonQuery();
-
-                if (result > 0)
-                {
-                    Console.WriteLine("Book deleted!");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to delete book!");
-                }
-
-                connection.Close();  
-            }     
+                Console.WriteLine("Update failed.");
+            }            
         }
 
-        public void searchBooks()
+        public void DeleteBook()
         {
-            List<Book> bookList = getBooks();
             Console.Clear();
+            GetAllBooks();
 
-            string titleInput = getStringInput("book title");
+            int id = GetIntInput("ID of the book to delete");
+
+            if (db.DeleteBook(id))
+            {
+                Console.WriteLine("Book deleted!");  
+            }       
+            else
+            {
+                Console.WriteLine("Delete failed.");
+            }            
+        }
+
+        public List<Book> GetAllBooks()
+        {
+            Console.Clear();
+            var books = db.GetAllBooks();
+
+            foreach (var book in books)
+            {
+                Console.WriteLine($"ID={book.bookID}, Title={book.title}, Author={book.author}, Year={book.publicationYear}, Genre={book.genre}");
+            }
+
+            return books;
+        }
+
+        public void SearchBooks()
+        {
+            Console.Clear();
+            string title = GetStringInput("title to search");
+
+            var results = db.SearchByTitle(title);
 
             Console.WriteLine("Search results:");
-
-            foreach (Book entry in bookList)
+            foreach (var b in results)
             {
-                if (entry.title.Contains(titleInput, StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine($"ID = {entry.bookID}, Title = {entry.title}, Author = {entry.author}, Publication Year = {entry.publicationYear}, Genre = {entry.genre}");           
-                }
+                Console.WriteLine($"ID={b.bookID}, Title={b.title}, Author={b.author}, Year={b.publicationYear}, Genre={b.genre}");
             }
         }
 
-        public List<Book> getBooks()
+        private string GetStringInput(string field)
         {
-            Console.Clear();
-
-            DatabaseHandler database = new DatabaseHandler();
-
-            using (var connection = database.MakeConnection())
+            while (true)
             {
-                try
-                {
-                    string query = @"SELECT * FROM books";
+                Console.Write($"Enter {field}: ");
+                string input = Console.ReadLine();
 
-                    MySqlCommand command = new MySqlCommand(query, connection);
+                if (!string.IsNullOrWhiteSpace(input))
+                    return input;
 
-                    var queryResult = command.ExecuteReader();
-     
-                    List<Book> bookList = new List<Book>();
-                    while (queryResult.Read())
-                    { 
-                        var id = queryResult.GetInt32("book_id");
-                        var title = queryResult.GetString("title");
-                        var author = queryResult.GetString("author");
-                        var publicationYear = queryResult.GetInt32("publication_year");
-                        var genre = queryResult.GetString("genre");
-                        Book book = new Book(id, title, author, publicationYear, genre);
-                        bookList.Add(book);
-                    }
-
-                    connection.Close();
-
-                    foreach (Book entry in bookList)
-                    {
-                        Console.WriteLine($"ID = {entry.bookID}, Title = {entry.title}, Author = {entry.author}, Publication Year = {entry.publicationYear}, Genre = {entry.genre}");
-                    }
-
-                    return bookList;
-                }
-                catch (MySqlException ex)
-                {
-                    Console.WriteLine($"Error connecting to database: {ex}");
-                    return null;
-                }
+                Console.WriteLine("Invalid input!");
             }
         }
 
-        public string getStringInput(string data)
-        {   
-            while (true)
-            {
-                try
-                {
-                    Console.WriteLine($"Enter {data}: ");
-                    string input = Console.ReadLine();
-
-                    if (string.IsNullOrEmpty(input))
-                    {
-                        Console.WriteLine($"Invalid input!");
-                        continue;      
-                    }
-
-                    return input;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error! {e}");
-                    continue;
-                }        
-            }     
-        }
-
-        public int getIntegerInput(string data)
+        private int GetIntInput(string field)
         {
             while (true)
             {
-                try
-                {
-                    Console.WriteLine($"Enter {data}: ");
-                    int input = Convert.ToInt32(Console.ReadLine());
+                Console.Write($"Enter {field}: ");
+                if (int.TryParse(Console.ReadLine(), out int value) && value >= 0)
+                    return value;
 
-                    if (int.IsNegative(input))
-                    {
-                        Console.WriteLine("Negative numbers are invalid!");
-                        continue;
-                    }
-
-                    return input;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error! {e}");
-                    continue;
-                }
-            }      
-        } 
-    }       
+                Console.WriteLine("Invalid number!");
+            }
+        }
+    }
 }
