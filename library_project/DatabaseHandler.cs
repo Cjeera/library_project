@@ -18,7 +18,7 @@ namespace library_project
             {
                 connection.Open();
 
-                string query = @"INSERT INTO books (title, author, publication_year, genre)
+                string query = @"INSERT INTO library (title, author, publication_year, genre)
                                  VALUES (@title, @author,
                                          @year, @genre)";
 
@@ -48,7 +48,7 @@ namespace library_project
             {
                 connection.Open();
 
-                string query = @"UPDATE books 
+                string query = @"UPDATE library 
                                  SET title=@title, author=@author,
                                      publication_year=@year, genre=@genre
                                  WHERE book_id=@id";
@@ -80,7 +80,7 @@ namespace library_project
             {
                 connection.Open();
 
-                string query = "DELETE FROM books WHERE book_id=@id";
+                string query = "DELETE FROM library WHERE book_id=@id";
 
                 MySqlCommand cmd = new MySqlCommand(query, connection);
 
@@ -107,7 +107,7 @@ namespace library_project
             {
                 connection.Open();
 
-                string query = "SELECT * FROM books";
+                string query = "SELECT * FROM library";
                 MySqlCommand cmd = new MySqlCommand(query, connection);
 
                 // If execution succeeds, query results are read and then returned. If unsuccessful, error message is printed and incomplete/empty book object is returned. 
@@ -144,7 +144,8 @@ namespace library_project
             {
                 connection.Open();
 
-                string query = @"SELECT * FROM books 
+                // Searches for titles that contain the search value after it or before it, or in the middle.  
+                string query = @"SELECT * FROM library 
                                  WHERE title LIKE CONCAT('%', @search, '%')";
 
                 MySqlCommand cmd = new MySqlCommand(query, connection);

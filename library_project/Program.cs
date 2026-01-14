@@ -13,7 +13,7 @@ class Program
             Console.WriteLine("\nLibrary Program");
             Console.WriteLine("1. Add a Book\n2. Update Book\n3. Delete Book\n4. View All Books\n5. Search Books\n6. Clear\n7. Exit");
 
-            switch (Console.ReadLine())
+            switch (Console.ReadLine()?.Trim())
             {
                 case "1": library.AddBook(); break;
                 case "2": library.UpdateBook(); break;

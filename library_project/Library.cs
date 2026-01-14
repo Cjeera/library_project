@@ -59,8 +59,6 @@ namespace library_project
 
         public void DeleteBook()
         {
-            Console.Clear();
-
             // All books in the database including their IDs are shown to the user so they can select a book by it's ID.
             GetAllBooks();
             int id = GetIntInput("ID of the book to delete");
@@ -78,8 +76,6 @@ namespace library_project
 
         public List<Book> GetAllBooks()
         {
-            Console.Clear();
-
             // Gets every book and it's details from the database and stores it all in a list of book objects.
             var books = db.GetAllBooks();
 
@@ -94,8 +90,6 @@ namespace library_project
 
         public void SearchBooks()
         {
-            Console.Clear();
-
             // User input is taken for book title.
             string title = GetStringInput("title to search");
 
