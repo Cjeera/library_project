@@ -4,9 +4,9 @@ namespace library_project
 {
     class DatabaseHandler
     {
-        private readonly string connectionString =
-            "server=localhost;port=3306;database=librarydb;user=root;password=root";
+        private readonly string connectionString = "server=localhost;port=3306;database=librarydb;user=root;password=root";
 
+        // Creates a new connection to a local MySQL DB.
         private MySqlConnection GetConnection()
         {
             return new MySqlConnection(connectionString);
@@ -29,7 +29,15 @@ namespace library_project
                 cmd.Parameters.AddWithValue("@year", book.publicationYear);
                 cmd.Parameters.AddWithValue("@genre", book.genre);
 
-                return cmd.ExecuteNonQuery() > 0;
+                try
+                {
+                    return cmd.ExecuteNonQuery() > 0;      
+                }
+                catch (MySqlException error)
+                {
+                    Console.WriteLine(error.Message);
+                    return false;
+                }        
             }
         }
         
@@ -52,7 +60,15 @@ namespace library_project
                 cmd.Parameters.AddWithValue("@year", book.publicationYear);
                 cmd.Parameters.AddWithValue("@genre", book.genre);
 
-                return cmd.ExecuteNonQuery() > 0;
+                try
+                {
+                    return cmd.ExecuteNonQuery() > 0;      
+                }
+                catch (MySqlException error)
+                {
+                    Console.WriteLine(error.Message);
+                    return false;
+                }   
             }
         }
         
@@ -68,7 +84,15 @@ namespace library_project
 
                 cmd.Parameters.AddWithValue("@id", id);
 
-                return cmd.ExecuteNonQuery() > 0;
+                try
+                {
+                    return cmd.ExecuteNonQuery() > 0;      
+                }
+                catch (MySqlException error)
+                {
+                    Console.WriteLine(error.Message);
+                    return false;
+                }
             }
         }
 
@@ -83,17 +107,26 @@ namespace library_project
                 string query = "SELECT * FROM books";
                 MySqlCommand cmd = new MySqlCommand(query, connection);
 
-                var reader = cmd.ExecuteReader();
-                while (reader.Read())
+                try
                 {
-                    books.Add(new Book
-                    (
-                        reader.GetInt32("book_id"),
-                        reader.GetString("title"),
-                        reader.GetString("author"),
-                        reader.GetInt32("publication_year"),
-                        reader.GetString("genre")
-                    ));
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        books.Add(new Book
+                        (
+                            reader.GetInt32("book_id"),
+                            reader.GetString("title"),
+                            reader.GetString("author"),
+                            reader.GetInt32("publication_year"),
+                            reader.GetString("genre")
+                        ));
+                    }           
+                }
+                catch (MySqlException error)
+                {
+                    Console.WriteLine(error.Message);
+                    return books;
                 }
             }
 
@@ -114,17 +147,25 @@ namespace library_project
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@search", titleSearch);
 
-                var reader = cmd.ExecuteReader();
-                while (reader.Read())
+                try
                 {
-                    results.Add(new Book
-                    (
-                        reader.GetInt32("book_id"),
-                        reader.GetString("title"),
-                        reader.GetString("author"),
-                        reader.GetInt32("publication_year"),
-                        reader.GetString("genre")
-                    ));
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        results.Add(new Book
+                        (
+                            reader.GetInt32("book_id"),
+                            reader.GetString("title"),
+                            reader.GetString("author"),
+                            reader.GetInt32("publication_year"),
+                            reader.GetString("genre")
+                        ));
+                    }        
+                }
+                catch (MySqlException error)
+                {
+                    Console.WriteLine(error.Message);
+                    return results;
                 }
             }
 
