@@ -4,8 +4,10 @@ class Program
 {
     static void Main(string[] args)
     {
+        // Library object is created which allows it's methods to be called by the user.
         Library library = new Library();
 
+        // Library menu. Prints the name of the program and presents the user all available options.
         while (true)
         {
             Console.WriteLine("\nLibrary Program");

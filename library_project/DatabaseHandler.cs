@@ -29,6 +29,7 @@ namespace library_project
                 cmd.Parameters.AddWithValue("@year", book.publicationYear);
                 cmd.Parameters.AddWithValue("@genre", book.genre);
 
+                // If execution succeeds (Exit code returned is more than 0), then exit code is returned. If unsuccessful, error message is printed and false is returned. 
                 try
                 {
                     return cmd.ExecuteNonQuery() > 0;      
@@ -60,6 +61,7 @@ namespace library_project
                 cmd.Parameters.AddWithValue("@year", book.publicationYear);
                 cmd.Parameters.AddWithValue("@genre", book.genre);
 
+                // If execution succeeds (Exit code returned is greater than 0), then exit code is returned. If unsuccessful, error message is printed and false is returned. 
                 try
                 {
                     return cmd.ExecuteNonQuery() > 0;      
@@ -84,6 +86,7 @@ namespace library_project
 
                 cmd.Parameters.AddWithValue("@id", id);
 
+                // If execution succeeds (Exit code returned is greater than 0), then exit code is returned. If unsuccessful, error message is printed and false is returned. 
                 try
                 {
                     return cmd.ExecuteNonQuery() > 0;      
@@ -107,6 +110,7 @@ namespace library_project
                 string query = "SELECT * FROM books";
                 MySqlCommand cmd = new MySqlCommand(query, connection);
 
+                // If execution succeeds, query results are read and then returned. If unsuccessful, error message is printed and incomplete/empty book object is returned. 
                 try
                 {
                     var reader = cmd.ExecuteReader();
@@ -121,7 +125,8 @@ namespace library_project
                             reader.GetInt32("publication_year"),
                             reader.GetString("genre")
                         ));
-                    }           
+                    }
+                    return books;           
                 }
                 catch (MySqlException error)
                 {
@@ -129,8 +134,6 @@ namespace library_project
                     return books;
                 }
             }
-
-            return books;
         }
 
         public List<Book> SearchByTitle(string titleSearch)
@@ -147,6 +150,7 @@ namespace library_project
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@search", titleSearch);
 
+                // If execution succeeds, query results are read and then returned. If unsuccessful, error message is printed and incomplete/empty book object is returned.
                 try
                 {
                     var reader = cmd.ExecuteReader();
@@ -160,16 +164,15 @@ namespace library_project
                             reader.GetInt32("publication_year"),
                             reader.GetString("genre")
                         ));
-                    }        
+                    }
+                    return results;        
                 }
                 catch (MySqlException error)
                 {
                     Console.WriteLine(error.Message);
                     return results;
                 }
-            }
-
-            return results;
+            }  
         }
     }
 }
